@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestionare Stoc Auto</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Gestionare Stoc Auto</h1>
+
+    <!-- Secțiune pentru adăugarea unui model de mașină -->
+	<section id="model-section">
+	    <h2>Modele de Mașini</h2>
+	    <input type="text" id="modelName" placeholder="Nume model">
+	    <button id="addModelBtn">Adaugă Model</button>
+	    <button id="openModelBtn">Deschide modele</button>
+	</section>
+
+	<!-- Modal pentru afișarea listei de modele -->
+	<div id="modelModal" class="modal">
+	    <div class="modal-content">
+	        <span id="closeModelModal" class="close">&times;</span>
+	        <h2>Lista modele</h2>
+	        <ul id="modelList"></ul>
+	    </div>
+	</div>
+
+
+
+    <!-- Secțiune pentru adăugarea unei piese -->
+    <section id="part-section">
+        <h2>Piese Auto</h2>
+        <input type="text" id="partName" placeholder="Nume piesă">
+        <input type="text" id="partCarModel" placeholder="Model mașină">
+        <input type="number" id="partPrice" placeholder="Preț">
+        <input type="number" id="partEuro" placeholder="Euro" min="3" max="9">
+        <input type="text" id="partCode" placeholder="Cod">
+        <button id="addPartBtn">Adaugă Piesă</button>
+    </section>
+
+    <!-- Secțiune pentru gestiunea stocului -->
+    <section id="stock-section">
+        <h2>Stoc Auto</h2>
+        <input type="text" id="searchPartName" placeholder="Caută după nume">
+        <input type="text" id="searchCarModel" placeholder="Model">
+        <input type="text" id="searchEuro" placeholder="Euro">
+        <input type="text" id="searchCode" placeholder="Cod">
+        <button id="searchBtn">Caută</button>
+        <table id="stockTable">
+            <thead>
+                <tr>
+                    <th>Nume Piesă</th>
+                    <th>Model</th>
+                    <th>Preț</th>
+                    <th>Cantitate</th>
+                    <th>Euro</th>
+                    <th>Cod</th>
+                    <th>Acțiuni</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rândurile se vor popula din JavaScript -->
+            </tbody>
+        </table>
+    </section>
+
+    <script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+document.addEventListener('DOMContentLoaded', () => {
+  const apiUrl = '/api';
+
+  // Navigare între secțiuni
+  const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
+  sidebarLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      sidebarLinks.forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+      const targetId = link.getAttribute('data-target');
+      document.querySelectorAll('.section').forEach(section => {
+        section.style.display = section.id === targetId ? 'block' : 'none';
+      });
+    });
+  });
+
+  // ----- Secțiunea "Adaugă modele" -----
+  function loadModels() {
+    fetch(`${apiUrl}/models/all`)
+      .then(response => response.json())
+      .then(models => {
+        const modelList = document.getElementById('modelList');
+        modelList.innerHTML = '';
+        models.forEach(model => {
+          const li = document.createElement('li');
+          li.textContent = model.modelName;
+          modelList.appendChild(li);
+        });
+        // Actualizează dropdown-urile din celelalte secțiuni
+        populateSelect('selectConfigModel', models);
+        populateSelect('selectCarForStock', models);
+      });
+  }
+
+  function populateSelect(selectId, models) {
+    const select = document.getElementById(selectId);
+    if(select) {
+      select.innerHTML = '';
+      models.forEach(model => {
+        const option = document.createElement('option');
+        option.value = model.modelName;
+        option.textContent = model.modelName;
+        select.appendChild(option);
+      });
+    }
+  }
+
+  document.getElementById('addModelBtn').addEventListener('click', () => {
+    const modelName = document.getElementById('modelName').value;
+    fetch(`${apiUrl}/models/add?modelName=${encodeURIComponent(modelName)}`, {
+      method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert("Model adăugat!");
+      document.getElementById('modelName').value = '';
+    })
+    .catch(error => console.error('Error:', error));
+  });
+
+  document.getElementById('openModelBtn').addEventListener('click', () => {
+    loadModels();
+    document.getElementById('modelModal').style.display = 'block';
+  });
+
+  document.getElementById('closeModelModal').addEventListener('click', () => {
+    document.getElementById('modelModal').style.display = 'none';
+  });
+
+  // ----- Secțiunea "Setează piese pentru model" -----
+  // Când se selectează un model, se poate încărca lista de piese deja configurate (opțional, printr-un endpoint specific)
+  function loadConfigParts(modelName) {
+    // Apel către un endpoint care returnează piesele standard pentru modelul selectat
+    fetch(`${apiUrl}/parts/default?carModel=${encodeURIComponent(modelName)}`)
+      .then(response => response.json())
+      .then(parts => {
+        const ul = document.getElementById('configPartList');
+        ul.innerHTML = '';
+        parts.forEach(part => {
+          const li = document.createElement('li');
+          li.textContent = `${part.name} - ${part.price} lei, Euro: ${part.euro}, Cod: ${part.code}`;
+          ul.appendChild(li);
+        });
+      })
+      .catch(error => console.error('Error:', error));
+  }
+
+  // Când se schimbă modelul selectat pentru configurare
+  document.getElementById('selectConfigModel').addEventListener('change', (e) => {
+    const modelName = e.target.value;
+    loadConfigParts(modelName);
+  });
+
+  document.getElementById('addConfigPartBtn').addEventListener('click', () => {
+    const modelName = document.getElementById('selectConfigModel').value;
+    const requestData = {
+      name: document.getElementById('configPartName').value,
+      carModel: modelName,
+      price: parseFloat(document.getElementById('configPartPrice').value),
+      euro: parseInt(document.getElementById('configPartEuro').value),
+      code: document.getElementById('configPartCode').value,
+      standard: true
+    };
+
+    fetch(`${apiUrl}/parts/add`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(requestData)
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert("Piesă configurată adăugată!");
+      // Reîncarcă lista de piese pentru modelul selectat
+      loadConfigParts(modelName);
+    })
+    .catch(error => console.error('Error:', error));
+  });
+
+  // ----- Secțiunea "Adaugă mașină" -----
+  document.getElementById('addCarBtn').addEventListener('click', () => {
+    const carModel = document.getElementById('selectCarForStock').value;
+    fetch(`${apiUrl}/inventory/addCar`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ carModel: carModel })
+    })
+    .then(response => response.text())
+    .then(msg => {
+      alert(msg);
+    })
+    .catch(error => console.error('Error:', error));
+  });
+
+  // ----- Secțiunea "Stoc" -----
+  document.getElementById('searchBtn').addEventListener('click', () => {
+    const partName = document.getElementById('searchPartName').value;
+    const carModel = document.getElementById('searchCarModel').value || "Toate";
+    const euro = document.getElementById('searchEuro').value || "Toate";
+    const code = document.getElementById('searchCode').value || "Toate";
+
+    fetch(`${apiUrl}/inventory/search?partName=${encodeURIComponent(partName)}&carModel=${encodeURIComponent(carModel)}&euro=${encodeURIComponent(euro)}&code=${encodeURIComponent(code)}`)
+      .then(response => response.json())
+      .then(data => {
+        populateStockTable(data);
+      })
+      .catch(error => console.error('Error:', error));
+  });
+
+  function populateStockTable(entries) {
+    const tbody = document.getElementById('stockTable').querySelector('tbody');
+    tbody.innerHTML = '';
+    entries.forEach(entry => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${entry.partName}</td>
+        <td>${entry.carModel}</td>
+        <td>${entry.price}</td>
+        <td>${entry.quantity}</td>
+        <td>${entry.euro}</td>
+        <td>${entry.code}</td>
+        <td><button class="sellBtn" data-part="${entry.partName}" data-model="${entry.carModel}" data-price="${entry.price}" data-euro="${entry.euro}" data-code="${entry.code}">Vinde</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.querySelectorAll('.sellBtn').forEach(button => {
+      button.addEventListener('click', () => {
+        const sellData = {
+          partName: button.getAttribute('data-part'),
+          carModel: button.getAttribute('data-model'),
+          price: parseFloat(button.getAttribute('data-price')),
+          euro: parseInt(button.getAttribute('data-euro')),
+          code: button.getAttribute('data-code')
+        };
+
+        fetch(`${apiUrl}/inventory/sell`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(sellData)
+        })
+        .then(response => response.text())
+        .then(msg => {
+          alert(msg);
+          document.getElementById('searchBtn').click();
+        })
+        .catch(error => console.error('Error:', error));
+      });
+    });
+  }
+
+  // Inițial, se încarcă lista de modele pentru toate secțiunile relevante
+  loadModels();
+});

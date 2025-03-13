@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestionare Stoc Auto</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Bara laterală -->
+    <nav class="sidebar">
+      <ul>
+        <li><a href="#" data-target="model-section">Modele de Mașini</a></li>
+        <li><a href="#" data-target="part-section">Piese Auto</a></li>
+        <li><a href="#" data-target="standard-part-section">Piese Standard</a></li>
+        <li><a href="#" data-target="add-car-section">Adaugă Mașină</a></li>
+        <li><a href="#" data-target="stock-section">Stoc Auto</a></li>
+      </ul>
+    </nav>
+
+    <!-- Zona de conținut -->
+    <div class="content">
+      <!-- Secțiunea Modele -->
+      <section id="model-section" class="section">
+        <h2>Modele de Mașini</h2>
+        <div class="form-group">
+          <input type="text" id="modelName" placeholder="Nume model">
+          <button id="addModelBtn">Adaugă Model</button>
+          <button id="openModelBtn">Deschide modele</button>
+        </div>
+        <!-- Modal pentru lista modelelor -->
+        <div id="modelModal" class="modal">
+          <div class="modal-content">
+            <span id="closeModelModal" class="close">&times;</span>
+            <h2>Lista modele</h2>
+            <ul id="modelList"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Secțiunea Piese Auto (non-standard) -->
+      <section id="part-section" class="section" style="display: none;">
+        <h2>Piese Auto (Opțional)</h2>
+        <div class="form-group">
+          <input type="text" id="partName" placeholder="Nume piesă">
+          <input type="text" id="partCarModel" placeholder="Model mașină">
+          <input type="number" id="partPrice" placeholder="Preț">
+          <input type="number" id="partEuro" placeholder="Euro" min="3" max="9">
+          <input type="text" id="partCode" placeholder="Cod">
+          <button id="addPartBtn">Adaugă Piesă</button>
+        </div>
+      </section>
+
+      <!-- Secțiunea Piese Standard -->
+      <section id="standard-part-section" class="section" style="display: none;">
+        <h2>Piese Standard</h2>
+        <div class="form-group">
+          <input type="text" id="stdPartName" placeholder="Nume piesă">
+          <input type="text" id="stdPartCarModel" placeholder="Model mașină">
+          <input type="number" id="stdPartPrice" placeholder="Preț">
+          <input type="number" id="stdPartEuro" placeholder="Euro" min="3" max="9">
+          <input type="text" id="stdPartCode" placeholder="Cod">
+          <!-- Nu afișăm checkbox-ul, ci îl setăm automat pe true -->
+          <button id="addStdPartBtn">Adaugă Piesă Standard</button>
+        </div>
+      </section>
+
+      <!-- Secțiunea Adaugă Mașină -->
+      <section id="add-car-section" class="section" style="display: none;">
+        <h2>Adaugă Mașină cu Piese Standard</h2>
+        <div class="form-group">
+          <select id="selectCarModel">
+            <!-- Se va popula dinamic cu modelele existente -->
+          </select>
+          <button id="addCarBtn">Adaugă Mașină în Stoc</button>
+        </div>
+      </section>
+
+      <!-- Secțiunea Stoc -->
+      <section id="stock-section" class="section" style="display: none;">
+        <h2>Stoc Auto</h2>
+        <div class="form-group">
+          <input type="text" id="searchPartName" placeholder="Caută după nume">
+          <input type="text" id="searchCarModel" placeholder="Model">
+          <input type="text" id="searchEuro" placeholder="Euro">
+          <input type="text" id="searchCode" placeholder="Cod">
+          <button id="searchBtn">Caută</button>
+        </div>
+        <table id="stockTable">
+          <thead>
+            <tr>
+              <th>Nume Piesă</th>
+              <th>Model</th>
+              <th>Preț</th>
+              <th>Cantitate</th>
+              <th>Euro</th>
+              <th>Cod</th>
+              <th>Acțiuni</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Se vor popula din JS -->
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </div>
+  <script src="main.js"></script>
+</body>
+</html>

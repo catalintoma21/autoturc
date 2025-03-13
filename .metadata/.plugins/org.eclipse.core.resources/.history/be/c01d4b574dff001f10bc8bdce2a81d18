@@ -1,0 +1,41 @@
+package com.example.stockapp1.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            // Dezactivează CSRF pentru aplicații REST (dacă folosești interfața web cu AJAX, s-ar putea să vrei să adaptezi acest lucru)
+            .csrf().disable()
+            .authorizeRequests(authorize -> authorize
+                .antMatchers("/css/**", "/js/**", "/images/**").permitAll() // Permite resursele statice
+                .anyRequest().authenticated()  // Toate cererile necesită autentificare
+            )
+            .httpBasic(Customizer.withDefaults());  // Autentificare Basic HTTP
+
+        return http.build();
+    }
+
+    @Bean
+    public InMemoryUserDetailsManager userDetailsService() {
+        // Pentru dezvoltare, folosim un utilizator în memorie.
+        UserDetails user = User.withDefaultPasswordEncoder() // Notă: nu folosi acest encoder în producție!
+                .username("admin")
+                .password("admin")
+                .roles("USER")
+                .build();
+        return new InMemoryUserDetailsManager(user);
+    }
+}

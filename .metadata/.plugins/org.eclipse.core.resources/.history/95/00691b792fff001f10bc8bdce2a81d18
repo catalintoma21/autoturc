@@ -1,0 +1,80 @@
+package com.example.inventory.model;
+
+import javax.persistence.*;
+
+@Entity
+@Table(name = "stock")
+public class StockEntry {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String partName;
+    
+    @Column(nullable = false)
+    private String carModel;
+    
+    @Column(nullable = false)
+    private double price;
+    
+    @Column(nullable = false)
+    private int quantity;
+    
+    @Column(nullable = false)
+    private String entryDate;
+    
+    @Column(nullable = false)
+    private int euro;
+    
+    @Column(nullable = false)
+    private String code;
+
+    public StockEntry() {}
+
+    public StockEntry(String partName, String carModel, double price, int quantity, String entryDate, int euro, String code) {
+        this.partName = partName.trim();
+        this.carModel = carModel.trim();
+        this.price = price;
+        this.quantity = quantity;
+        this.entryDate = entryDate;
+        this.euro = euro;
+        this.code = code.trim();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getPartName() {
+        return partName;
+    }
+
+    public String getCarModel() {
+        return carModel;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public String getEntryDate() {
+        return entryDate;
+    }
+
+    public int getEuro() {
+        return euro;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+}

@@ -1,0 +1,8 @@
+spring.datasource.url=${mysql://p2aitead6kuai55j:j50ff7n7kys8pdzs@vlvlnl1grfzh34vj.chr7pe7iynqr.eu-west-1.rds.amazonaws.com:3306/cdr64mzc3kbgvvyx}
+spring.datasource.username=p2aitead6kuai55j
+spring.datasource.password=j50ff7n7kys8pdzs
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=false
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect

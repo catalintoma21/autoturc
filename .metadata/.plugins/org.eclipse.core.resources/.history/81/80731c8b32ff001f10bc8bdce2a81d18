@@ -1,0 +1,57 @@
+package com.example.stockapp1.controller;
+
+import com.example.stockapp1.dto.AddCarRequest;
+import com.example.stockapp1.dto.SellRequest;
+import com.example.stockapp1.model.StockEntry;
+import com.example.stockapp1.service.StockService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import java.sql.SQLException;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/inventory")
+public class InventoryController {
+
+    private final StockService stockService;
+
+    public InventoryController(StockService stockService) {
+        this.stockService = stockService;
+    }
+
+    @PostMapping("/addCar")
+    public ResponseEntity<?> addCarToStock(@RequestBody AddCarRequest request) {
+        try {
+            stockService.addCarToStock(request.getCarModel());
+            return ResponseEntity.ok("Mașina a fost adăugată în stoc.");
+        } catch (SQLException ex) {
+            return ResponseEntity.badRequest().body("Eroare: " + ex.getMessage());
+        }
+    }
+
+    @GetMapping("/search")
+    public List<StockEntry> searchStock(
+            @RequestParam(defaultValue = "") String partName,
+            @RequestParam(defaultValue = "Toate") String carModel,
+            @RequestParam(defaultValue = "Toate") String euro,
+            @RequestParam(defaultValue = "Toate") String code
+    ) {
+        return stockService.searchStock(partName, carModel, euro, code);
+    }
+
+    @PostMapping("/sell")
+    public ResponseEntity<?> sellPart(@RequestBody SellRequest sellRequest) {
+        try {
+            stockService.sellStockEntry(
+                sellRequest.getPartName(),
+                sellRequest.getCarModel(),
+                sellRequest.getPrice(),
+                sellRequest.getEuro(),
+                sellRequest.getCode()
+            );
+            return ResponseEntity.ok("Piesa a fost vândută cu succes.");
+        } catch (SQLException ex) {
+            return ResponseEntity.badRequest().body("Eroare: " + ex.getMessage());
+        }
+    }
+}

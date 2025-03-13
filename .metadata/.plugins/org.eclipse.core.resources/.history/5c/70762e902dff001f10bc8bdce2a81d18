@@ -1,0 +1,27 @@
+package com.example.stockapp1.controller;
+
+import com.example.stockapp1.entity.Part;
+import com.example.stockapp1.repository.PartRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/parts")
+public class PartController {
+    @Autowired
+    private PartRepository partRepository;
+    
+    @GetMapping
+    public List<Part> getAllParts() {
+        return partRepository.findAll();
+    }
+    
+    @PostMapping
+    public Part createPart(@RequestBody Part part) {
+        return partRepository.save(part);
+    }
+    
+    // Endpoint-uri pentru update și delete pot fi adăugate aici
+}

@@ -1,0 +1,10 @@
+package stockapp1;
+
+public class StockAppApplication {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+	}
+
+}

@@ -1,0 +1,24 @@
+package service.copy;
+
+import com.example.stockapp1.entity.Part;
+import com.example.stockapp1.repository.PartRepository;
+import org.springframework.stereotype.Service;
+import java.util.List;
+
+@Service
+public class PartService {
+    private final PartRepository partRepository;
+    
+    public PartService(PartRepository partRepository) {
+        this.partRepository = partRepository;
+    }
+    
+    public Part addPart(String name, String carModel, double price, int euro, String code) {
+        Part part = new Part(name, carModel, price, euro, code);
+        return partRepository.save(part);
+    }
+    
+    public List<Part> getPartsByCarModel(String carModel) {
+        return partRepository.findByCarModelIgnoreCase(carModel);
+    }
+}

@@ -1,0 +1,45 @@
+package com.example.stockapp1.controller;
+
+import com.example.stockapp1.dto.AddPartRequest;
+import com.example.stockapp1.model.Part;
+import com.example.stockapp1.service.PartService;
+import com.example.stockapp1.service.StockService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/parts")
+public class PartController {
+    private final PartService partService;
+    private final StockService stockService;
+    
+    public PartController(PartService partService, StockService stockService) {
+        this.partService = partService;
+        this.stockService = stockService;
+    }
+    
+    @PostMapping("/add")
+    public ResponseEntity<?> addPart(@RequestBody AddPartRequest request) {
+        // Salvează piesa în tabela 'parts'
+        Part part = partService.addPart(
+            request.getName(),
+            request.getCarModel(),
+            request.getPrice(),
+            request.getEuro(),
+            request.getCode()
+        );
+        // Creează o intrare în stoc pentru piesă
+        try {
+            stockService.addPartToStock(
+                request.getName(),
+                request.getCarModel(),
+                request.getPrice(),
+                request.getEuro(),
+                request.getCode()
+            );
+        } catch(Exception e) {
+            return ResponseEntity.badRequest().body("Piesă adăugată, dar eroare la crearea intrării de stoc: " + e.getMessage());
+        }
+        return ResponseEntity.ok(part);
+    }
+}

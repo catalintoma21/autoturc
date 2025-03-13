@@ -1,0 +1,200 @@
+document.addEventListener('DOMContentLoaded', () => {
+  const apiUrl = '/api';
+
+  // Navigare între secțiuni (sidebar)
+  const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
+  sidebarLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      sidebarLinks.forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+      const targetId = link.getAttribute('data-target');
+      document.querySelectorAll('.section').forEach(section => {
+        section.style.display = section.id === targetId ? 'block' : 'none';
+      });
+    });
+  });
+
+  // ----- Secțiunea Modele -----
+  function loadModels() {
+    fetch(`${apiUrl}/models/all`)
+      .then(response => response.json())
+      .then(models => {
+        const modelList = document.getElementById('modelList');
+        modelList.innerHTML = '';
+        models.forEach(model => {
+          const li = document.createElement('li');
+          li.textContent = model.modelName;
+          modelList.appendChild(li);
+        });
+        // De asemenea, actualizează dropdown-ul din secțiunea "Adaugă Mașină"
+        const selectCarModel = document.getElementById('selectCarModel');
+        if(selectCarModel) {
+          selectCarModel.innerHTML = '';
+          models.forEach(model => {
+            const option = document.createElement('option');
+            option.value = model.modelName;
+            option.textContent = model.modelName;
+            selectCarModel.appendChild(option);
+          });
+        }
+      });
+  }
+
+  document.getElementById('addModelBtn').addEventListener('click', () => {
+    const modelName = document.getElementById('modelName').value;
+    fetch(`${apiUrl}/models/add?modelName=${encodeURIComponent(modelName)}`, {
+      method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert("Model adăugat!");
+      document.getElementById('modelName').value = '';
+    })
+    .catch(error => console.error('Error:', error));
+  });
+
+  document.getElementById('openModelBtn').addEventListener('click', () => {
+    loadModels();
+    document.getElementById('modelModal').style.display = 'block';
+  });
+
+  document.getElementById('closeModelModal').addEventListener('click', () => {
+    document.getElementById('modelModal').style.display = 'none';
+  });
+
+  // ----- Secțiunea Piese Auto (non-standard) -----
+  document.getElementById('addPartBtn').addEventListener('click', () => {
+    const requestData = {
+      name: document.getElementById('partName').value,
+      carModel: document.getElementById('partCarModel').value,
+      price: parseFloat(document.getElementById('partPrice').value),
+      euro: parseInt(document.getElementById('partEuro').value),
+      code: document.getElementById('partCode').value,
+      standard: false
+    };
+
+    fetch(`${apiUrl}/parts/add`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(requestData)
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert("Piesă adăugată (non-standard)!");
+    })
+    .catch(error => console.error('Error:', error));
+  });
+
+  // ----- Secțiunea Piese Standard -----
+  document.getElementById('addStdPartBtn').addEventListener('click', () => {
+    const requestData = {
+      name: document.getElementById('stdPartName').value,
+      carModel: document.getElementById('stdPartCarModel').value,
+      price: parseFloat(document.getElementById('stdPartPrice').value),
+      euro: parseInt(document.getElementById('stdPartEuro').value),
+      code: document.getElementById('stdPartCode').value,
+      standard: true
+    };
+
+    fetch(`${apiUrl}/parts/add`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(requestData)
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert("Piesă standard adăugată!");
+    })
+    .catch(error => console.error('Error:', error));
+  });
+
+  // ----- Secțiunea Adaugă Mașină (cu piese standard) -----
+  // Populează dropdown-ul cu modelele existente
+  function loadCarModelsForAdd() {
+    fetch(`${apiUrl}/models/all`)
+      .then(response => response.json())
+      .then(models => {
+        const select = document.getElementById('selectCarModel');
+        select.innerHTML = '';
+        models.forEach(model => {
+          const option = document.createElement('option');
+          option.value = model.modelName;
+          option.textContent = model.modelName;
+          select.appendChild(option);
+        });
+      });
+  }
+  loadCarModelsForAdd();
+
+  document.getElementById('addCarBtn').addEventListener('click', () => {
+    const carModel = document.getElementById('selectCarModel').value;
+    fetch(`${apiUrl}/inventory/addCar`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ carModel: carModel })
+    })
+    .then(response => response.text())
+    .then(msg => {
+      alert(msg);
+    })
+    .catch(error => console.error('Error:', error));
+  });
+
+  // ----- Secțiunea Stoc -----
+  document.getElementById('searchBtn').addEventListener('click', () => {
+    const partName = document.getElementById('searchPartName').value;
+    const carModel = document.getElementById('searchCarModel').value || "Toate";
+    const euro = document.getElementById('searchEuro').value || "Toate";
+    const code = document.getElementById('searchCode').value || "Toate";
+
+    fetch(`${apiUrl}/inventory/search?partName=${encodeURIComponent(partName)}&carModel=${encodeURIComponent(carModel)}&euro=${encodeURIComponent(euro)}&code=${encodeURIComponent(code)}`)
+      .then(response => response.json())
+      .then(data => {
+        populateStockTable(data);
+      })
+      .catch(error => console.error('Error:', error));
+  });
+
+  function populateStockTable(entries) {
+    const tbody = document.getElementById('stockTable').querySelector('tbody');
+    tbody.innerHTML = '';
+    entries.forEach(entry => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${entry.partName}</td>
+        <td>${entry.carModel}</td>
+        <td>${entry.price}</td>
+        <td>${entry.quantity}</td>
+        <td>${entry.euro}</td>
+        <td>${entry.code}</td>
+        <td><button class="sellBtn" data-part="${entry.partName}" data-model="${entry.carModel}" data-price="${entry.price}" data-euro="${entry.euro}" data-code="${entry.code}">Vinde</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.querySelectorAll('.sellBtn').forEach(button => {
+      button.addEventListener('click', () => {
+        const sellData = {
+          partName: button.getAttribute('data-part'),
+          carModel: button.getAttribute('data-model'),
+          price: parseFloat(button.getAttribute('data-price')),
+          euro: parseInt(button.getAttribute('data-euro')),
+          code: button.getAttribute('data-code')
+        };
+
+        fetch(`${apiUrl}/inventory/sell`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(sellData)
+        })
+        .then(response => response.text())
+        .then(msg => {
+          alert(msg);
+          document.getElementById('searchBtn').click();
+        })
+        .catch(error => console.error('Error:', error));
+      });
+    });
+  }
+});

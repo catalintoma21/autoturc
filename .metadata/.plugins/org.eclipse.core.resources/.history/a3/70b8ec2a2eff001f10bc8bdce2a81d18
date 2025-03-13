@@ -1,0 +1,29 @@
+package com.example.stockapp1.controller;
+
+import dto.AddPartRequest;
+import com.example.stockapp1.entity.Part;
+import service.PartService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/parts")
+public class PartController {
+    private final PartService partService;
+    
+    public PartController(PartService partService) {
+        this.partService = partService;
+    }
+    
+    @PostMapping("/add")
+    public ResponseEntity<?> addPart(@RequestBody AddPartRequest request) {
+        Part part = partService.addPart(
+            request.getName(),
+            request.getCarModel(),
+            request.getPrice(),
+            request.getEuro(),
+            request.getCode()
+        );
+        return ResponseEntity.ok(part);
+    }
+}

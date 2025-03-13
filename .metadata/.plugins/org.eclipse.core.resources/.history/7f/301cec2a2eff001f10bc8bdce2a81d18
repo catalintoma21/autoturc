@@ -1,0 +1,43 @@
+package com.example.stockapp1.controller;
+
+import com.example.stockapp1.entity.StockEntry;
+import com.example.stockapp1.repository.StockEntryRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/stock")
+public class StockEntryController {
+    @Autowired
+    private StockEntryRepository stockEntryRepository;
+    
+    @GetMapping
+    public List<StockEntry> getAllStockEntries() {
+        return stockEntryRepository.findAll();
+    }
+    
+    @PostMapping
+    public StockEntry createStockEntry(@RequestBody StockEntry stockEntry) {
+        return stockEntryRepository.save(stockEntry);
+    }
+    
+    @PutMapping("/sell/{id}")
+    public StockEntry sellStockEntry(@PathVariable Long id) {
+        StockEntry entry = stockEntryRepository.findById(id).orElse(null);
+        if(entry != null) {
+            int newQuantity = entry.getQuantity() - 1;
+            if(newQuantity > 0) {
+                entry.setQuantity(newQuantity);
+                return stockEntryRepository.save(entry);
+            } else {
+                stockEntryRepository.delete(entry);
+                return entry;
+            }
+        }
+        return null;
+    }
+    
+    // Alte endpoint-uri pentru update pot fi adăugate
+}

@@ -1,0 +1,9 @@
+spring.datasource.url=jdbc:mysql://localhost:3306/rh348_stockpiese?useSSL=false&serverTimezone=UTC
+spring.datasource.username=rh348_TurcOlimpiu
+spring.datasource.password=Admin25.
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
+
+# Alte proprietăți (logare etc.)
